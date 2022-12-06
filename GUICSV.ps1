@@ -20,13 +20,15 @@ If (!(Test-Path -Path $TempPath)) {
   New-Item -Path $TempPath -Force -ItemType Directory
 }
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-if((Test-NetConnection -ComputerName "hhviesmp01.HOUSING.HOSTING").PingSucceeded -eq $True){
-    $Server = "HHVIESMP01.housing.hosting"
+$CEMMode = (Get-ItemProperty "HKLM:\SOFTWARE\Altiris\Communications").PSObject.Properties.Name -contains "SSLProxyPort"
+$CEMMode = (Get-ItemProperty "HKLM:\SOFTWARE\Altiris\Communications").PSObject.Properties.Name -contains "SSLProxyPort"
+if($CEMMode) {
+$BaseURL = http://127.0.0.1:59100/sslproxytarget/ + "servername.domain.com" + "/443/"
 }
 else {
-    $Server = "127.0.0.1:59100"
+$BaseURL = "https://HHVIESMP01.housing.hosting"
 }
-$Webserver = "https://$Server/Altiris/NS/NSCap/Bin/Deployment/ACP/Repo/TS/TSData"
+$Webserver = "$Server/Altiris/NS/NSCap/Bin/Deployment/ACP/Repo/TS/TSData"
 $xaml = Invoke-WebRequest -Uri "$webserver/GUI.xaml" -UseBasicParsing
 $Settingfile = Invoke-RestMethod -Uri "$webserver/settings.json" -UseBasicParsing
 Invoke-WebRequest -Uri "$webserver/ACPTools.png" -UseBasicParsing -OutFile "$tempPath\ACPTools.png"
